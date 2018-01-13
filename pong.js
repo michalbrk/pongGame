@@ -31,21 +31,40 @@ document.addEventListener("DOMContentLoaded", function(e) {
     
     //Creating the new ball
     let ball = new Ball;
-//    ball.pos.x = 100;
-//    ball.pos.y = 50;
+    ball.pos.x = 100;
+    ball.pos.y = 50;
+    ball.vel.x = 100;
+    ball.vel.y = 100;
+    
+    let lastTime;
+    
+    
+    function callback(millsecs) {
+        if(lastTime) {
+            updates((millsecs - lastTime) / 1000)
+        }
+        lastTime = millsecs;
+        
+        //ReqAnmFrm calls a callback for the next time when the browser is ready to draw
+        //In callback there is the calculation of time, how long from the last ReqAnmFrm?
+        //ReqAnmFrm is used to get a ball's postition
+        requestAnimationFrame(callback);
+    }
 
     //Animating the ball, movement of the ball is relevant to the update method deltaTime
     function updates(deltaTime) {
         ball.pos.x += ball.vel.x * deltaTime;
+        ball.pos.y += ball.vel.y * deltaTime;
+    
+        //Canvas properties
+        context.fillStyle = '#000';
+        context.fillRect(0,0, canvas.width, canvas.height);
+    
+        //Ball properties
+        context.fillStyle = '#fff';
+        context.fillRect(ball.pos.x, ball.pos.y, ball.size.x, ball.size.y);
     }
     
-    //Canvas
-    context.fillStyle = '#000';
-    context.fillRect(0,0, canvas.width, canvas.height);
-    
-    //Ball
-    context.fillStyle = '#fff';
-    context.fillRect(ball.pos.x, ball.pos.y, ball.size.x, ball.size.y);
-    
+    callback();
 });
 
