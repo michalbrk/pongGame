@@ -55,6 +55,18 @@ document.addEventListener("DOMContentLoaded", function(e) {
     function updates(deltaTime) {
         ball.pos.x += ball.vel.x * deltaTime;
         ball.pos.y += ball.vel.y * deltaTime;
+        
+        //Detecting when the ball touches the screen
+        if(ball.x < 0 || ball.x > canvas.width) {
+            //Here, we check it horizontally
+            //Inverting the ball when it touches the screen
+            ball.vel.x = -ball.vel.x;
+        }
+        
+        //Here, we check it vertically
+        if(ball.y < 0 || ball.y > canvas.height) {
+            ball.vel.y = -ball.vel.y;
+        }
     
         //Canvas properties
         context.fillStyle = '#000';
