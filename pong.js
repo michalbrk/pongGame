@@ -39,6 +39,13 @@ document.addEventListener("DOMContentLoaded", function(e) {
         }
     }
     
+    class Player extends Rec {
+        constructor() {
+            super(20, 100);
+            this.score = 0;
+        }
+    }
+    
     class Pong {
         constructor(canvas) {
             this._canvas = canvas;
@@ -50,6 +57,20 @@ document.addEventListener("DOMContentLoaded", function(e) {
             this.ball.pos.y = 50;
             this.ball.vel.x = 100;
             this.ball.vel.y = 100;
+            
+            //Creating instances of players
+            this.players = [
+                new Player,
+                new Player,
+            ];
+            
+            this.players[0].pos.x = 40;
+            this.players[1].pos.x = this._canvas.width - 40;
+            
+            //Adjusting the players position in the middle
+            this.players.forEach(player => {
+                player.pos.y = this._canvas.height / 2;
+            });
             
             let lastTime;
             let callback = (millsecs) => {
@@ -66,35 +87,55 @@ document.addEventListener("DOMContentLoaded", function(e) {
             callback();
         }
         
+        draw() {
+            //Canvas properties
+            this._context.fillStyle = '#000';
+            this._context.fillRect(0,0, this._canvas.width, this._canvas.height);
+
+            this.drawRect(this.ball);
+            
+            //Drawinf the players
+            this.players.forEach(player => this.drawRect(player));
+        }
+        
+        drawRect(rect) {
+            //Ball properties
+            this._context.fillStyle = '#fff';
+            this._context.fillRect(rect.left, rect.top, rect.size.x, rect.size.y);
+        }
+        
         //Animating the ball, movement of the ball is relevant to the update method deltaTime
         updates(deltaTime) {
-        this.ball.pos.x += this.ball.vel.x * deltaTime;
-        this.ball.pos.y += this.ball.vel.y * deltaTime;
-        
-        //Detecting when the ball touches the screen
-        if(this.ball.left < 0 || this.ball.right > this._canvas.width) {
-            //Here, we check it horizontally
-            //Inverting the ball when it touches the screen
-            this.ball.vel.x = -this.ball.vel.x;
-        }
-        
-        //Here, we check it vertically
-        if(this.ball.top < 0 || this.ball.bottom > this._canvas.height) {
-            this.ball.vel.y = -this.ball.vel.y;
-        }
+            this.ball.pos.x += this.ball.vel.x * deltaTime;
+            this.ball.pos.y += this.ball.vel.y * deltaTime;
+
+            //Detecting when the ball touches the screen
+            if(this.ball.left < 0 || this.ball.right > this._canvas.width) {
+                //Here, we check it horizontally
+                //Inverting the ball when it touches the screen
+                this.ball.vel.x = -this.ball.vel.x;
+            }
+
+            //Here, we check it vertically
+            if(this.ball.top < 0 || this.ball.bottom > this._canvas.height) {
+                this.ball.vel.y = -this.ball.vel.y;
+            }
+            
+            //Making the player 2 (computer) move and follow the ball
+            this.players[1].pos.y = this.ball.pos.y;
+
+            this.draw();
     
-        //Canvas properties
-        this._context.fillStyle = '#000';
-        this._context.fillRect(0,0, this._canvas.width, this._canvas.height);
-    
-        //Ball properties
-        this._context.fillStyle = '#fff';
-        this._context.fillRect(this.ball.pos.x, this.ball.pos.y, this.ball.size.x, this.ball.size.y);
         }
     }
     
     let canvas = document.getElementById('pong');
     //Initialize the game
     let pong = new Pong(canvas);
+    
+    //Creating movement for the player 1 (mouse)
+    canvas.addEventListener('mousemove', event => {
+        pong.players[0].pos.y = event.offsetY;
+    });
 });
 
