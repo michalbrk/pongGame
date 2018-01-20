@@ -53,10 +53,7 @@ document.addEventListener("DOMContentLoaded", function(e) {
             
             //Creating the new ball
             this.ball = new Ball;
-            this.ball.pos.x = 100;
-            this.ball.pos.y = 50;
-            this.ball.vel.x = 100;
-            this.ball.vel.y = 100;
+
             
             //Creating instances of players
             this.players = [
@@ -85,6 +82,17 @@ document.addEventListener("DOMContentLoaded", function(e) {
                 requestAnimationFrame(callback);
             }
             callback();
+            
+            this.reset();
+        }
+        
+        collide(player, ball) {
+            if(player.left < ball.right && player.right > ball.left &&
+               player.top < ball.bottom && player.bottom > ball.top) {
+                 
+                //Negating the velocity
+                ball.vel.x = - ball.vel.x;
+            }
         }
         
         draw() {
@@ -104,6 +112,17 @@ document.addEventListener("DOMContentLoaded", function(e) {
             this._context.fillRect(rect.left, rect.top, rect.size.x, rect.size.y);
         }
         
+        //Make sure that the ball gests back to the canvas after going away
+        reset() {
+            //Put the ball in the middle of the canvas
+            this.ball.pos.x = this.ball._canvas.width / 2;
+            this.ball.pos.y = this.ball._canvas.height / 2;
+            
+            //initialize velocity with a click
+            this.ball.vel.x = 0;
+            this.ball.vel.y = 0;
+        }
+        
         //Animating the ball, movement of the ball is relevant to the update method deltaTime
         updates(deltaTime) {
             this.ball.pos.x += this.ball.vel.x * deltaTime;
@@ -111,9 +130,11 @@ document.addEventListener("DOMContentLoaded", function(e) {
 
             //Detecting when the ball touches the screen
             if(this.ball.left < 0 || this.ball.right > this._canvas.width) {
-                //Here, we check it horizontally
-                //Inverting the ball when it touches the screen
-                this.ball.vel.x = -this.ball.vel.x;
+                
+                //Measuring the score
+                const playerId = this.ball.vel.x < 0 | 0;
+                this.players[playerId].score++;
+                this.reset();
             }
 
             //Here, we check it vertically
@@ -123,6 +144,9 @@ document.addEventListener("DOMContentLoaded", function(e) {
             
             //Making the player 2 (computer) move and follow the ball
             this.players[1].pos.y = this.ball.pos.y;
+            
+            //Testing the collision
+            this.players.forEach(player => this.collide(player, this.ball));
 
             this.draw();
     
