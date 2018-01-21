@@ -6,6 +6,18 @@ document.addEventListener("DOMContentLoaded", function(e) {
             this.x = x;
             this.y = y;
         }
+        
+        get len() {
+            
+            //Hypothesis of the triangle, stabilizing the velocity
+            return Math.sqrt(this.x * this.x + this.y * this.y);
+        }
+        
+        set len(value) {
+            const fact = value / this.len;
+            this.x *= fact;
+            this.y *= fact;
+        }
     }
     
     //Data structure for the rectangles that will be created
@@ -92,6 +104,9 @@ document.addEventListener("DOMContentLoaded", function(e) {
                  
                 //Negating the velocity
                 ball.vel.x = - ball.vel.x;
+                
+                //Speeding up the ball's velocity
+                ball.vel.len *= 1.05;
             }
         }
         
@@ -115,13 +130,27 @@ document.addEventListener("DOMContentLoaded", function(e) {
         //Make sure that the ball gests back to the canvas after going away
         reset() {
             //Put the ball in the middle of the canvas
-            this.ball.pos.x = this.ball._canvas.width / 2;
-            this.ball.pos.y = this.ball._canvas.height / 2;
+            this.ball.pos.x = this._canvas.width / 2;
+            this.ball.pos.y = this._canvas.height / 2;
             
             //initialize velocity with a click
             this.ball.vel.x = 0;
             this.ball.vel.y = 0;
         }
+        
+        //Check the ball's speed, we can start when it isn't moving
+        start() {
+            if(this.ball.vel.x === 0 && this.ball.vel.y === 0) {
+                
+            //Randomizing the direction in which the ball goes    
+            this.ball.vel.x = 300 * (Math.random() > .5 ? 1 : - 1);
+            this.ball.vel.y = 300 * (Math.random() * 2 - 1);
+                
+            //Securing the consistency of the ball's speed
+            this.ball.vel.len = 200;
+            }
+        }
+        
         
         //Animating the ball, movement of the ball is relevant to the update method deltaTime
         updates(deltaTime) {
@@ -160,6 +189,10 @@ document.addEventListener("DOMContentLoaded", function(e) {
     //Creating movement for the player 1 (mouse)
     canvas.addEventListener('mousemove', event => {
         pong.players[0].pos.y = event.offsetY;
+    });
+    
+    canvas.addEventListener('click', event => {
+        pong.start();
     });
 });
 
