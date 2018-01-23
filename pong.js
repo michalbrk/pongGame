@@ -114,7 +114,7 @@ document.addEventListener("DOMContentLoaded", function(e) {
                 canvas.height = this.CHAR_PIXEL * 5;
                 canvas.width = this.CHAR_PIXEL * 3;
                 const context = canvas.getContext('2d');
-                context.fillStyle = 'fff';
+                context.fillStyle = '#fff';
                 
                 //Iterate and create elements
                 str.split('').forEach((fill, i) => {
@@ -248,7 +248,10 @@ document.addEventListener("DOMContentLoaded", function(e) {
     
     //Creating movement for the player 1 (mouse)
     canvas.addEventListener('mousemove', event => {
-        pong.players[0].pos.y = event.offsetY;
+        
+        //Mitigating the mouse turn-backs
+        const scale = event.offsetY / event.target.getBoundingClientRect().height;
+        pong.players[0].pos.y = canvas.height * scale;
     });
     
     canvas.addEventListener('click', event => {
