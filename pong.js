@@ -63,6 +63,10 @@ document.addEventListener("DOMContentLoaded", function(e) {
             this._canvas = canvas;
             this._context = canvas.getContext('2d');
             
+            //Initialize accumulator
+            this._accumulator = 0;
+            this.step = 1/120;
+            
             //Creating the new ball
             this.ball = new Ball;
 
@@ -73,8 +77,8 @@ document.addEventListener("DOMContentLoaded", function(e) {
                 new Player,
             ];
             
-            this.players[0].pos.x = 40;
-            this.players[1].pos.x = this._canvas.width - 40;
+            this.players[0].pos.x = 200;
+            this.players[1].pos.x = this._canvas.width - 200;
             
             //Adjusting the players position in the middle
             this.players.forEach(player => {
@@ -82,9 +86,11 @@ document.addEventListener("DOMContentLoaded", function(e) {
             });
             
             let lastTime;
+            
             let callback = (millsecs) => {
                 if(lastTime) {
-                    this.updates((millsecs - lastTime) / 1000)
+                    this.updates((millsecs - lastTime) / 1000);
+                    this.draw();
                 }
                 lastTime = millsecs;
 
@@ -213,7 +219,7 @@ document.addEventListener("DOMContentLoaded", function(e) {
         
         
         //Animating the ball, movement of the ball is relevant to the update method deltaTime
-        updates(deltaTime) {
+        simulate(deltaTime) {
             this.ball.pos.x += this.ball.vel.x * deltaTime;
             this.ball.pos.y += this.ball.vel.y * deltaTime;
 
@@ -236,9 +242,13 @@ document.addEventListener("DOMContentLoaded", function(e) {
             
             //Testing the collision
             this.players.forEach(player => this.collide(player, this.ball));
-
-            this.draw();
-    
+        }
+        updates(deltaTime) {
+            this._accumulator += deltaTime;
+            while(this._accumulator > this.step) {
+                this.simulate(this.step);
+                this._accumulator -= this.step;
+            }
         }
     }
     
